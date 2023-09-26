@@ -1,2 +1,1 @@
-hola este texto es 
-el que se va a codificar.
+AbCd
