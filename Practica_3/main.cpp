@@ -7,54 +7,49 @@
 
 using namespace std;
 
-int tamtex();
-void binario(int tamaño, char *catexto, int *texbinario);
-void metodo1(int tamaño, int semilla, int *texbinario, int *codificado);
-void metodo2(int tamaño, int semilla, int *texbinario, int *codificado);
-void escribir(int tamaño, int *codificado);
-void deco1(int tamaño, int semilla, char *catexto, int *texbinario);
+int tamtex(string archivoleer);
+void binario(int tamaño, char *catexto, int *texbinario, string archivoleer);
+void metodo1(int tamaño, int semilla, int *texbinario, string nombre);
+void metodo2(int tamaño, int semilla, int *texbinario, int *codificado, string nombre);
+void deco1(int tamaño, int semilla, int *texbinario, string nombre, string nombredeco);
+void deco2(int tamaño, int semilla, int *texbinario, int *codificado, string nombre, string nombredeco);
 
 
 int main()
 {
     int tamaño, semilla, metodo;
+    string archivoleer, nombre, nombredeco;
     cout<<"Ingrese la semilla n: "; cin>>semilla;
     cout<<"Ingrese el metodo de codificacion (1-2): "; cin>>metodo;
+    cout<<"Ingrese el nombre del archivo a leer: "; cin>>archivoleer;
+    cout<<"Ingrese el nombre del archivo codificado: "; cin>>nombre;
+    cout<<"Ingrese el nombre del archivo decodificado: "; cin>>nombredeco;
 
-    tamaño=tamtex();                                                                     //Calcular el tamaño del texto.
+
+    tamaño=tamtex(archivoleer);                                                                     //Calcular el tamaño del texto.
 
     char catexto[tamaño];
     int texbinario[8*tamaño];
-    binario(tamaño, &catexto[0], &texbinario[0]);                                       //Genera 2 cadenas, caracteres y binario.
+    binario(tamaño, &catexto[0], &texbinario[0], archivoleer);                                       //Genera 2 cadenas, caracteres y binario.
     int codificado[8*tamaño];
 
     if(metodo==1){
-        metodo1(tamaño, semilla, &texbinario[0], &codificado[0]);
-        escribir(tamaño, &codificado[0]);
+        metodo1(tamaño, semilla, &texbinario[0],nombre);
+        deco1(tamaño, semilla, &texbinario[0],nombre,nombredeco);
     }
-    else{
-        metodo2(tamaño, semilla, &texbinario[0], &codificado[0]);
-        escribir(tamaño, &codificado[0]);
+    else if(metodo==2){
+        metodo2(tamaño, semilla, &texbinario[0], &codificado[0],nombre);
+        deco2(tamaño, semilla, &texbinario[0], &codificado[0], nombre, nombredeco);
     }
-
-    if(metodo==1){
-        deco1(tamaño, semilla, &catexto[0], &texbinario[0]);
-    }
-
-
-
-
-
+    else cout<<"El metodo ingresado es invalido."<<endl;
 }
 
-int tamtex(){
+
+int tamtex(string archivoleer){
     int tamaño;
+
     ifstream archivo;
-
-    string leerarchivo="texto.txt";
-    //cout<<"Ingrese el nombre del archivo que va a codificar: "; cin>>leerarchivo;
-
-    archivo.open("C:\\Users\\luis\\Desktop\\Universidad\\NIVEL 9\\Informatica 2\\Laboratorio\\Practica #3\\Practica_3\\texto.txt");
+    archivo.open(archivoleer);
 
     cout<<endl;
     if(archivo.fail()){
@@ -70,17 +65,17 @@ int tamtex(){
     return tamaño;
 }
 
-void binario(int tamaño, char *catexto, int *texbinario){
+void binario(int tamaño, char *catexto, int *texbinario, string archivoleer){
     char cadena[tamaño];
+
     vector<int> vect;
 
     ifstream archivo;
-
-    archivo.open("C:\\Users\\luis\\Desktop\\Universidad\\NIVEL 9\\Informatica 2\\Laboratorio\\Practica #3\\Practica_3\\texto.txt");
+    archivo.open(archivoleer);
 
     cout<<endl;
     if(archivo.fail()){
-        cout<<"El archivo texto no ce pudo abrir."<<endl;
+        cout<<"El archivo texto no ce pudo abrir en la funcion binario."<<endl;
         exit(1);
     }
 
@@ -100,17 +95,24 @@ void binario(int tamaño, char *catexto, int *texbinario){
         texbinario[i]=vect[i];
 }
 
-void metodo1(int tamaño, int semilla, int *texbinario, int *codificado){
+void metodo1(int tamaño, int semilla, int *texbinario, string nombre){
     int cont0=0, cont1=0, aux=0;
 
+    ofstream archivo;
+    archivo.open(nombre);
+
+    if(archivo.fail()){
+        cout<<"El archivo Codificado del metodo 1 no ce pudo crear."<<endl;
+        exit(1);
+    }
 
     for(int i=0; i<8*(tamaño); i=i+semilla){
 
         if(cont0 == cont1){                                            //el # de 1nos es igaul al # de 0ros.
             for(int j=i; j<i+semilla; j++){
-                if(texbinario[j]==1) codificado[j]=0;
+                if(texbinario[j]==1) archivo<<0;
                 else
-                    codificado[j]=1;
+                    archivo<<1;
             }
         }
 
@@ -118,12 +120,12 @@ void metodo1(int tamaño, int semilla, int *texbinario, int *codificado){
             aux=0;
             for(int j=i; j<i+semilla; j++){
                 if(aux==1){                                              //Invierte el 2 bit
-                    if(texbinario[j]==1) codificado[j]=0;
-                    else codificado[j]=1;
+                    if(texbinario[j]==1) archivo<<0;
+                    else archivo<<1;
                     aux=0;
                 }
                 else{
-                    codificado[j]=texbinario[j];
+                    archivo<<texbinario[j];
                     aux++;
                 }
             }
@@ -133,12 +135,12 @@ void metodo1(int tamaño, int semilla, int *texbinario, int *codificado){
             aux=0;
             for(int j=i; j<i+semilla; j++){
                 if(aux==2){
-                    if(texbinario[j]==1) codificado[j]=0;
-                    else codificado[j]=1;
+                    if(texbinario[j]==1) archivo<<0;
+                    else archivo<<1;
                     aux=0;
                 }
                 else{
-                    codificado[j]=texbinario[j];
+                    archivo<<texbinario[j];
                     aux++;
                 }
             }
@@ -151,22 +153,11 @@ void metodo1(int tamaño, int semilla, int *texbinario, int *codificado){
             else cont0++;
         }
     }
-
-    for(int i=0; i<8*tamaño; i++)
-        cout<<texbinario[i];
-
-
-
-
-
+    archivo.close();
 }
 
-void metodo2(int tamaño, int semilla, int *texbinario, int *codificado){
+void metodo2(int tamaño, int semilla, int *texbinario, int *codificado, string nombre){
     int grupos;
-
-    for(int i=0; i<8*(tamaño); i++)
-        cout<<texbinario[i];
-    cout<<endl;
 
     for(int i=0; i<8*(tamaño); i=i+semilla){                                //Se recorre el arreglo binario por grupos de n
 
@@ -187,38 +178,29 @@ void metodo2(int tamaño, int semilla, int *texbinario, int *codificado){
             codificado[i]=texbinario[i];
     }
 
-    for(int i=0; i<8*(tamaño); i++)
-        cout<<codificado[i];
-    cout<<endl;
-}
-
-void escribir(int tamaño, int *codificado){
     ofstream archivo;
-
-    archivo.open("C:\\Users\\luis\\Desktop\\Universidad\\NIVEL 9\\Informatica 2\\Laboratorio\\Practica #3\\Practica_3\\Codificado.txt");
+    archivo.open(nombre);
 
     if(archivo.fail()){
-        cout<<"El archivo Codificado no ce pudo crear."<<endl;
+        cout<<"El archivo Codificado con el metodo 2 no ce pudo crear."<<endl;
         exit(1);
     }
 
     for(int i=0; i<8*(tamaño); i++)
         archivo<<codificado[i];
-
     archivo.close();
 }
 
-void deco1(int tamaño, int semilla, char *catexto, int *texbinario){
+void deco1(int tamaño, int semilla, int *texbinario, string nombre, string nombredeco){
     int cont0=0, cont1=0, aux=0, suma=0, pote[8]={128,64,32,16,8,4,2,1};
     char cadena[tamaño*8];
 
     ifstream archivo;
-
-    archivo.open("C:\\Users\\luis\\Desktop\\Universidad\\NIVEL 9\\Informatica 2\\Laboratorio\\Practica #3\\Practica_3\\Codificado.txt");
+    archivo.open(nombre);
 
     cout<<endl;
     if(archivo.fail()){
-        cout<<"El archivo texto no ce pudo abrir."<<endl;
+        cout<<"El archivo texto codificado con el metodo 1 no ce pudo abrir."<<endl;
         exit(1);
     }
 
@@ -275,11 +257,10 @@ void deco1(int tamaño, int semilla, char *catexto, int *texbinario){
     cout<<endl;
 
     ofstream salida;
-
-    salida.open("C:\\Users\\luis\\Desktop\\Universidad\\NIVEL 9\\Informatica 2\\Laboratorio\\Practica #3\\Practica_3\\Decodificado.txt");
+    salida.open(nombredeco);
 
     if(salida.fail()){
-        cout<<"El archivo Decodificado no ce pudo crear."<<endl;
+        cout<<"El archivo Decodificado por el metodo 1 no ce pudo crear."<<endl;
         exit(1);
     }
 
@@ -293,17 +274,71 @@ void deco1(int tamaño, int semilla, char *catexto, int *texbinario){
         salida<<(char)suma;
         suma=0;
     }
+    archivo.close();
+}
 
+void deco2(int tamaño, int semilla, int *texbinario, int *codificado, string nombre, string nombredeco){
+    int aux=0, suma=0, grupos=0, pote[8]={128,64,32,16,8,4,2,1};
+    char cadena[tamaño*8];
+
+    ifstream archivo;
+    archivo.open(nombre);
+
+    cout<<endl;
+    if(archivo.fail()){
+        cout<<"El archivo texto a decodificar con el metodo 2 no ce pudo abrir."<<endl;
+        exit(1);
+    }
+
+    archivo.read(cadena, tamaño*8);                                    //Se agrega el texto al arreglo caracter por caracter
+    archivo.close();
+
+    for(int i=0; i<8*(tamaño); i++)                                    //Se llena el arreglo con enteros binarios
+        codificado[i] = (int)cadena[i]-48;
+
+
+    for(int i=0; i<8*(tamaño); i=i+semilla){                                //Se recorre el arreglo binario por grupos de n
+
+        for(int j=i; j<i+semilla; j++){                                     //Se recorre cada grupo de n escogido
+
+            if(j==(i+semilla-1))                                           //La ultima posicion se pone de primera
+                texbinario[j]=codificado[i];
+
+            else
+                texbinario[j]=codificado[j+1];                             //Se corre una posicion a la derecha.
+        }
+    }
+
+    if((8*tamaño)%semilla != 0){
+        grupos=(8*tamaño)/semilla;
+
+        for(int i=grupos*semilla; i<8*(tamaño); i++)
+            texbinario[i]=codificado[i];
+    }
+
+
+    ofstream salida;
+    salida.open(nombredeco);
+
+    if(salida.fail()){
+        cout<<"El archivo Decodificado con el metodo 2 no ce pudo crear."<<endl;
+        exit(1);
+    }
+
+    aux=0;
+    for(int i=0; i<8*(tamaño); i=i+8){                         //ciclo que recorre el arreglo de bits por grupos de n bits
+        for(int j=i; j<i+8; j++){
+            suma = suma + texbinario[j]*pote[aux];
+            aux++;
+        }
+        aux=0;
+        salida<<(char)suma;
+        suma=0;
+    }
     archivo.close();
 
 
-
-
-   // for(int i=0; i<tamaño; i++)
-     //   cout<<catexto[i];
 }
-
-
 
 
 
