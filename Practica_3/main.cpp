@@ -26,7 +26,7 @@ struct Usuario {
 
 int main()
 {
-    int tamaño, tamaño1, semilla, metodo, opcion=10, numerousu, nuevodinero, dineroretirar;
+    int tamaño, tamaño1, tamaño2, semilla, metodo, opcion=10, numerousu, nuevodinero, dineroretirar;
     string archivousuarios, nombre, nombredeco, clave, linea, claveusu, datos, cedula_ingre;
     string cedula, nombre1, dinero_str;
     vector<Usuario> usuarios;
@@ -42,6 +42,13 @@ int main()
     ifstream in;
     ofstream on;
 
+    tamaño1=tamtex(archivousuarios);
+    int texbinario1[8*tamaño1];
+    int codificado1[8*tamaño1];
+
+    if(metodo==1) deco1(tamaño1/8, semilla, &texbinario1[0], archivousuarios, archivousuarios);
+    else deco2(tamaño1/8, semilla, &texbinario1[0], &codificado1[0], archivousuarios, archivousuarios);
+
 
     while(opcion!=0){
         cout<<endl;
@@ -50,10 +57,8 @@ int main()
 
         if(opcion==1){
             tamaño=tamtex(nombre);
-            tamaño1=tamtex(archivousuarios);
-            int texbinario[tamaño], texbinario1[tamaño1];
-            int codificado[tamaño], codificado1[tamaño1];
-
+            int texbinario[tamaño];
+            int codificado[tamaño];
 
             if(metodo==1) deco1(tamaño/8, semilla, &texbinario[0], nombre, nombredeco);
             else deco2(tamaño/8, semilla, &texbinario[0], &codificado[0], nombre, nombredeco);
@@ -72,8 +77,6 @@ int main()
             cout<<"Ingrese la clave de administrador: "; cin>>claveusu;
 
             if(claveusu == clave){
-                //if(metodo==1) deco1(tamaño1/8, semilla, &texbinario1[0], archivousuarios, archivousuarios);
-                //else deco2(tamaño1/8, semilla, &texbinario1[0], &codificado1[0], archivousuarios, archivousuarios);
 
                 cout<<"Administradro en linea."<<endl;
 
@@ -90,16 +93,6 @@ int main()
                     numerousu--;
                 }
                 on.close();
-
-                tamaño=tamtex(archivousuarios);
-                char catexto[tamaño];
-                int texbinario1[8*tamaño];
-                int codificado1[8*tamaño];
-
-                binario(tamaño, &catexto[0], &texbinario1[0], archivousuarios);
-
-                //if(metodo==1) metodo1(tamaño, semilla, &texbinario1[0], &codificado1[0], archivousuarios);
-                //else metodo2(tamaño, semilla, &texbinario1[0], &codificado1[0], archivousuarios);
 
             }
             else cout<<"Las claves no coinciden, no puede ingresar"<<endl;
@@ -161,7 +154,7 @@ int main()
         }
 
         else if(opcion==3){
-            cout<<"Para consultar retirar dinero ingrese su cedula: "; cin>>cedula_ingre;
+            cout<<"Para retirar dinero ingrese su cedula: "; cin>>cedula_ingre;
             cout<<"Ingrese la cantidad de dinero a retirar: "; cin>>dineroretirar;
 
             in.open(archivousuarios);
@@ -218,8 +211,18 @@ int main()
         else{
             cout<<"El programa a finalizado"<<endl;
             break;}
-
     }
+
+    tamaño2=tamtex(archivousuarios);
+    char catexto2[tamaño2];
+    int texbinario2[8*tamaño2];
+    int codificado2[8*tamaño2];
+
+    binario(tamaño2, &catexto2[0], &texbinario2[0], archivousuarios);
+
+    if(metodo==1) metodo1(tamaño2, semilla, &texbinario2[0], &codificado2[0], archivousuarios);
+    else metodo2(tamaño2, semilla, &texbinario2[0], &codificado2[0], archivousuarios);
+
 }
 
 int menu(){
